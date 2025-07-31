@@ -100,4 +100,6 @@ const ALLOWED_ORIGINS = [
     "http://localhost", // For plugin testing
 ];
 
+const ZEPTOMAIL_API_ERROR_CODE = ['TM_3201', 'TM_3301', 'TM_3501', 'TM_3601', 'TM_4001', 'TM_5001', 'TM_8001'];
+
 error_reporting(0);

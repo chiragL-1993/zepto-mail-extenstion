@@ -148,57 +148,17 @@ if (isset($emailParameters['error'])) {
 // Send message
 $emailResult = $zeptoMailHelper->sendEmail($emailParameters);
 
-// Handle unknown response from Zepto API
-if (
-    !is_object($emailResult) ||
-    !property_exists($emailResult, 'error') ||
-    !property_exists($emailResult->error, 'code')
-) {
-    $msg = "Unknown failure response from Zepto Mail";
-    if (
-        !empty($emailResult->error) &&
-        !empty($emailResult->error->code) &&
-        $emailResult->error->code == "LEDGER_ERROR"
-    ) {
-        $clientSc->log->warning($msg, [
-            'emailResult' => $emailResult,
-            'emailParameters' => $emailParameters,
-            'emailConfiguration' => $emailModuleConfiguration
-        ]);
-        $errors[] = $zeptoMailHelper->getSendEmailErrorArray(
-            $moduleName,
-            $record,
-            $user,
-            $emailModuleConfiguration,
-            $msg
-        );
-    } else {
-        $clientSc->log->critical($msg, [
-            'emailResult' => $emailResult,
-            'emailParameters' => $emailParameters,
-            'emailConfiguration' => $emailModuleConfiguration
-        ]);
-        $errors[] = $zeptoMailHelper->getSendEmailErrorArray(
-            $moduleName,
-            $record,
-            $user,
-            $emailModuleConfiguration,
-            $msg
-        );
-    }
-}
-
 // Handle Errors from Zepto API
-if ($emailResult->error->code !== "SUCCESS") {
-    $msg = $emailResult->error->description && $emailResult->error->description->reason
-        ? "Error from Zepto Mail - " . $emailResult->error->description->reason
+if ($emailResult['message'] != "OK") {
+    $msg = $emailResult['error']['details'] && $emailResult['error']['details'][0]['message']
+        ? "Error from Zepto Mail - " . $emailResult['error']['details'][0]['message']
         : "Unknown failure response from Zepto Mail";
     if (
-        !empty($emailResult->error) &&
-        !empty($emailResult->error->code) &&
-        $emailResult->error->code == "LEDGER_ERROR"
+        !empty($emailResult['error']) &&
+        !empty($emailResult['error']['code']) &&
+        in_array($emailResult['error']['code'], ZEPTOMAIL_API_ERROR_CODE)
     ) {
-        $clientSc->log->warning($msg, [
+        $clientSc->log->critical($msg, [
             'emailResult' => $emailResult,
             'emailParameters' => $emailParameters,
             'emailConfiguration' => $emailModuleConfiguration
@@ -214,6 +174,8 @@ if ($emailResult->error->code !== "SUCCESS") {
         $clientSc->log->critical($msg, ['emailResult' => $emailResult, 'emailParameters' => $emailParameters, 'emailConfiguration' => $emailModuleConfiguration]);
         $errors[] = $zeptoMailHelper->getSendEmailErrorArray($moduleName, $record, $user, $emailModuleConfiguration, $msg);
     }
+
+    sendResponse(false, $msg);
 }
 
 // Handle Success
@@ -224,7 +186,7 @@ $dbEmailRecord = (new ZeptoEmailRecords)->create([
     'record_id' => $moduleId,
     'parameters' => json_encode($emailParameters),
     'response' => json_encode($emailResult),
-    'zepto_mail_id' => (string) $emailResult->message_id,
+    'zepto_mail_id' => (string) $emailResult->request_id,
     'status' => $scheduleAt ? EMAIL_HISTORY_STATUSES['scheduled'] : EMAIL_HISTORY_STATUSES['sent']
 ]);
 

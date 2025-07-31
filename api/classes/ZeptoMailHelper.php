@@ -6,7 +6,7 @@ use Exception;
 use DateTime;
 use DateTimeZone;
 use SquirrelClient;
-use ZeptoMailExtension\Model\EmailRecords;
+use ZeptoMailExtension\Model\ZeptoEmailRecords;
 use zcrmsdk\crm\crud\ZCRMRecord;
 use zcrmsdk\crm\utility\APIConstants;
 use zcrmsdk\crm\setup\users\ZCRMUser;
@@ -91,7 +91,7 @@ class ZeptoMailHelper
     }
 
 
-    public function sendEmail(array $emailParams)
+    /*public function sendEmail(array $emailParams)
     {
         try {
             if ($this->zeptoApiKey) {
@@ -111,23 +111,21 @@ class ZeptoMailHelper
             ]);
             return false;
         }
-    }
+    }*/
 
-    private function sendViaZeptoApi(array $params)
+    public function sendEmail(array $params)
     {
         $payload = [
             //'bounce_address' => $params['bounce'] ?: 'bounce@yourdomain.com',
             'from' => [
                 'address' => $params['from'],
-                'name' => 'Zepto Mailer'
+                //'name' => 'Zepto Mailer'
             ],
             'to' => [[
                 'email_address' => ['address' => $params['to']]
             ]],
             'subject' => $params['subject'],
-            'htmlbody' => $params['body'],
-            'track_opens' => true,
-            'track_clicks' => true
+            'htmlbody' => $params['body']
         ];
 
         $ch = curl_init('https://api.zeptomail.com/v1.1/email');
@@ -135,16 +133,11 @@ class ZeptoMailHelper
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_POST => true,
             CURLOPT_HTTPHEADER => [
-                'Authorization: Zoho-enczapikey ' . $this->zeptoApiKey,
+                'Authorization: ' . $this->zeptoApiKey,
                 'Content-Type: application/json',
-                'Accept: application/json',
-            ],/*
-            CURLOPT_HTTPHEADER => array(
-                "accept: application/json",
-                "authorization: " . $this->zeptoApiKey,
                 "cache-control: no-cache",
-                "content-type: application/json",
-            ),*/
+                'Accept: application/json',
+            ],
             CURLOPT_POSTFIELDS => json_encode($payload),
         ]);
 
@@ -158,24 +151,16 @@ class ZeptoMailHelper
         }
 
         $result = json_decode($response, true);
-        echo $this->zeptoApiKey;
-        echo '<br>';
-        echo '<pre>';
-        print_r($payload);
-        echo '<br>';
-        echo '<pre>';
-        print_r($result);
-        if ($httpCode >= 400) {
-            $msg = $result['message'] ?: 'Unknown error';
-            throw new Exception("Zepto API Error ($httpCode): $msg");
-        }
+        /*if ($httpCode >= 400) {
+            throw new Exception("Zepto API Error ($httpCode): $response");
+        }*/
 
         return $result;
     }
 
     public function logEmailRecord($recordId, $emailParams, $status = 'sent')
     {
-        EmailRecords::create([
+        ZeptoEmailRecords::create([
             'crm_record_id' => $recordId,
             'email_to' => $emailParams['to'],
             'email_subject' => $emailParams['subject'],
@@ -521,7 +506,7 @@ class ZeptoMailHelper
         }
         $emailHistoryName = $configuration['campaign_name'] ? $configuration['campaign_name'] . ' on ' : ($singleEmail ? 'Single Email on ' : 'Bulk Email on ');
         $emailHistoryName .= $scheduleDateTime ? $scheduleDateTime1 . ' ' : (new DateTime('now', new DateTimeZone($configuration['timezone'])))->format('Y-m-d h:i A') . ' ';
-        $emailHistoryName .= implode(' ', array_slice(preg_split('/\s+/', trim($emailParameters['email_body'])), 0, 5)) . '...';
+        //$emailHistoryName .= implode(' ', array_slice(preg_split('/\s+/', trim($emailParameters['body'])), 0, 5)) . '...';
         if (strlen($emailHistoryName) > 120) {
             $emailHistoryName = substr($emailHistoryName, 0, 117) . '...';
         }
@@ -535,11 +520,11 @@ class ZeptoMailHelper
             EMAIL_HISTORY_FIELD_MAPPINGS['cm_url_field'] => $cmURL,
             EMAIL_HISTORY_FIELD_MAPPINGS['email_field'] => $emailParameters['to'],
             EMAIL_HISTORY_FIELD_MAPPINGS['email_template_field'] => $configuration['email_template_id'],
-            EMAIL_HISTORY_FIELD_MAPPINGS['email_body_field'] => $emailParameters['email_body'],
+            EMAIL_HISTORY_FIELD_MAPPINGS['email_content_field'] => $emailParameters['body'],
             EMAIL_HISTORY_FIELD_MAPPINGS['scheduled_time_field'] => $scheduleDateTime ? $scheduleDateTime2 : '',
             EMAIL_HISTORY_FIELD_MAPPINGS['status_field'] => $scheduleDateTime ? EMAIL_HISTORY_STATUSES['scheduled'] : EMAIL_HISTORY_STATUSES['sent'],
             EMAIL_HISTORY_FIELD_MAPPINGS['type_field'] => 'Outbound',
-            EMAIL_HISTORY_FIELD_MAPPINGS['zepto_email_id_field'] => (string) $emailResult->email_id,
+            EMAIL_HISTORY_FIELD_MAPPINGS['zepto_email_id_field'] => (string) $emailResult->request_id,
             EMAIL_HISTORY_FIELD_MAPPINGS['campaign_name_field'] => $configuration['campaign_name'] ? $configuration['campaign_name'] : '',
             '__email_db_record_id' => $dbEmailRecordId
         ];

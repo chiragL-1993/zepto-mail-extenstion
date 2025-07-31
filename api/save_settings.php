@@ -92,7 +92,7 @@ try {
     $client->zgid = $_POST["zgid"];
     $client->client_code = $_POST["client-code"];
     $client->error_email = $_POST["error-email"];
-    $client->zepto_mail_api_key = $squirrelSc->zoho->getAccessToken();
+    $client->zepto_mail_api_key = $_POST["api-key"];
     $client->zepto_mail_sender_id = $_POST['sender'];
     $client->custom_module_name = $_POST["email-history-module"];
     $client->modules_for_zepto_mail = json_encode($emailModulesArray);
@@ -100,7 +100,7 @@ try {
     $client->refreshed_data = date("Y-m-d H:i:s");
     $extraData = json_decode($client->extra_data);
     $extraData->timezone = $_POST["timezone"];
-    $extraData->two_way_email = $_POST["two-way-toggle"];
+    //$extraData->two_way_email = $_POST["two-way-toggle"];
     $extraData->default_sender = $_POST["default_sender"];
     $client->extra_data = json_encode($extraData);
     /*echo '<pre>';

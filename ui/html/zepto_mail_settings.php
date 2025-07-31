@@ -110,7 +110,11 @@
                 </div>
 
                 <div class="grid grid-cols-3 gap-5 !mt-4">
-                    <fieldset class="relative flex flex-col space-y-2 group fieldset-tooltip">
+                    <fieldset class="space-y-1 flex flex-col">
+                        <label for="api-key" class="font-medium">Zepto Mail API Key <span class="text-red-600">*</span></label>
+                        <input type="text" id="api-key" name="api-key" required class="rounded-md py-2 px-3 ring-1 ring-gray-300">
+                    </fieldset>
+                    <!-- <fieldset class="relative flex flex-col space-y-2 group fieldset-tooltip">
                         <div class="flex items-center">
                             <label for="two-way-toggle" class="font-medium flex-shrink-0 mr-2">Enable 2-Way Email? <span class="text-red-600">*</span></label>
                             <input type="checkbox" id="two-way-toggle" name="two-way-toggle" class="two-way-toggle">
@@ -118,7 +122,7 @@
                         <div class="tooltip-text">
                             2-Way Mail will not work with Alphanumeric Sender ID.
                         </div>
-                    </fieldset>
+                    </fieldset> -->
                 </div>
             </div>
 

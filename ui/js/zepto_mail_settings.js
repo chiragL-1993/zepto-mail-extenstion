@@ -11,7 +11,7 @@ $(document).ready(async function () {
         $('#sender-email').hide();
 
         // Initialize Switchery with a small size
-        var twoWaySwitch = new Switchery(document.getElementById('two-way-toggle'), { size: 'small', color: '#54A4DA' });
+        //var twoWaySwitch = new Switchery(document.getElementById('two-way-toggle'), { size: 'small', color: '#54A4DA' });
 
         // Get OrgInfo and push to hidden fields
         var orgData = await ZOHO.CRM.CONFIG.getOrgInfo();
@@ -49,17 +49,17 @@ $(document).ready(async function () {
         savedData = await getSavedSettings(orgInfo.id);
         if (savedData.success && savedData.data.zgid) {
             $('#sender').val(savedData.data.zepto_mail_sender_id);
-
+            $('#api-key').val(savedData.data.zepto_mail_api_key);
             $('#error-email').val(savedData.data.error_email);
             $('#client-code').val(savedData.data.client_code);
             $('#email-modules').val(savedData.data.modules_for_zepto_mail);
             twoWayEnabled = savedData.data.extra_data['two_way_email'] ? savedData.data.extra_data['two_way_email'] : 'false';
             twoWayEnabled = twoWayEnabled == 'false' ? false : true;
-            twoWaySwitch.setPosition(twoWayEnabled);
+            //twoWaySwitch.setPosition(twoWayEnabled);
             // Trigger the change event to update the module mappings
             $('#email-modules').trigger('change');
         } else {
-            twoWaySwitch.setPosition(true);
+            //twoWaySwitch.setPosition(true);
         }
 
         // Toggle password visibility
@@ -230,9 +230,9 @@ function submitForm() {
         }
 
         // Add the 2-way switch to the formData array
-        if (fieldName == 'two-way-toggle') {
+        /*if (fieldName == 'two-way-toggle') {
             fieldValue = $('#two-way-toggle').prop('checked');
-        }
+        }*/
 
         formData.push({ name: fieldName, value: fieldValue });
     });
