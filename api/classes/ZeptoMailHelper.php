@@ -25,7 +25,7 @@ class ZeptoMailHelper
         $this->zeptoApiKey = $zeptoApiKey;
     }
 
-    public function getEmailParameters(ZCRMRecord $record, $user, $configuration)
+    /*public function getEmailParameters(ZCRMRecord $record, $user, $configuration)
     {
         $email = $configuration['email'] ?: $record->getFieldValue($configuration['email_field']);
         if (empty($email)) {
@@ -45,6 +45,42 @@ class ZeptoMailHelper
             'body' => $body,
             'from' => $configuration['email_from'] ?: DEFAULT_SENDER,
             //'bounce' => $configuration['bounce'] ?: null
+        ];
+    }*/
+
+    public function getEmailParameters(ZCRMRecord $record, $user, $configuration)
+    {
+        $email = $configuration['email'] ?: $record->getFieldValue($configuration['email_field']);
+        if (empty($email)) {
+            return ['error' => 'Missing recipient email address'];
+        }
+
+        $subject = $this->replaceMergeFields($configuration['email_subject'], $record, $user, $configuration);
+        $body = $this->replaceMergeFields($configuration['email_body'], $record, $user, $configuration);
+
+        if (empty($body)) {
+            return ['error' => 'Email body is empty'];
+        }
+
+        $fromAddress = $configuration['email_from'] ?: DEFAULT_SENDER;
+        $replyAddress = $configuration['reply_to'] ?: DEFAULT_SENDER;
+
+        return [
+            'from' => [
+                'address' => $fromAddress,
+                //'name' => 'Zepto Mailer', 
+            ],
+            'to' => [[
+                'email_address' => ['address' => $email]
+            ]],
+            'reply_to' => [[
+                'address' => $replyAddress
+            ]],
+            'subject' => $subject,
+            'htmlbody' => $body,
+            "track_clicks" => true,
+            "track_opens" => true,
+            //'bounce_address' => $configuration['bounce'] ?? 'bounce@yourdomain.com' // Optional
         ];
     }
 
@@ -115,7 +151,7 @@ class ZeptoMailHelper
 
     public function sendEmail(array $params)
     {
-        $payload = [
+        /*$payload = [
             //'bounce_address' => $params['bounce'] ?: 'bounce@yourdomain.com',
             'from' => [
                 'address' => $params['from'],
@@ -126,7 +162,7 @@ class ZeptoMailHelper
             ]],
             'subject' => $params['subject'],
             'htmlbody' => $params['body']
-        ];
+        ];*/
 
         $ch = curl_init('https://api.zeptomail.com/v1.1/email');
         curl_setopt_array($ch, [
@@ -138,7 +174,7 @@ class ZeptoMailHelper
                 "cache-control: no-cache",
                 'Accept: application/json',
             ],
-            CURLOPT_POSTFIELDS => json_encode($payload),
+            CURLOPT_POSTFIELDS => json_encode($params),
         ]);
 
         $response = curl_exec($ch);
@@ -163,7 +199,7 @@ class ZeptoMailHelper
         ZeptoEmailRecords::create([
             'crm_record_id' => $recordId,
             'email_to' => $emailParams['to'],
-            'email_subject' => $emailParams['subject'],
+            'email_subject' => $emailParams['email_subject'],
             'email_body' => $emailParams['email_body'],
             'status' => $status,
             'sent_at' => (new DateTime('now', new DateTimeZone('UTC')))->format('Y-m-d H:i:s')
@@ -518,13 +554,14 @@ class ZeptoMailHelper
             EMAIL_HISTORY_FIELD_MAPPINGS['cm_name_field'] => $configuration['module'],
             EMAIL_HISTORY_FIELD_MAPPINGS['cm_id_field'] => $configuration['module_id'],
             EMAIL_HISTORY_FIELD_MAPPINGS['cm_url_field'] => $cmURL,
-            EMAIL_HISTORY_FIELD_MAPPINGS['email_field'] => $emailParameters['to'],
+            EMAIL_HISTORY_FIELD_MAPPINGS['email_field'] => $emailParameters['to'][0]['email_address']['address'],
             EMAIL_HISTORY_FIELD_MAPPINGS['email_template_field'] => $configuration['email_template_id'],
-            EMAIL_HISTORY_FIELD_MAPPINGS['email_content_field'] => $emailParameters['body'],
+            EMAIL_HISTORY_FIELD_MAPPINGS['email_subject_field'] => $emailParameters['subject'],
+            EMAIL_HISTORY_FIELD_MAPPINGS['email_content_field'] => $emailParameters['htmlbody'],
             EMAIL_HISTORY_FIELD_MAPPINGS['scheduled_time_field'] => $scheduleDateTime ? $scheduleDateTime2 : '',
             EMAIL_HISTORY_FIELD_MAPPINGS['status_field'] => $scheduleDateTime ? EMAIL_HISTORY_STATUSES['scheduled'] : EMAIL_HISTORY_STATUSES['sent'],
             EMAIL_HISTORY_FIELD_MAPPINGS['type_field'] => 'Outbound',
-            EMAIL_HISTORY_FIELD_MAPPINGS['zepto_email_id_field'] => (string) $emailResult->request_id,
+            EMAIL_HISTORY_FIELD_MAPPINGS['zepto_email_id_field'] => (string) $emailResult['request_id'],
             EMAIL_HISTORY_FIELD_MAPPINGS['campaign_name_field'] => $configuration['campaign_name'] ? $configuration['campaign_name'] : '',
             '__email_db_record_id' => $dbEmailRecordId
         ];

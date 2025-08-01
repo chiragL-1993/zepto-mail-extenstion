@@ -1,21 +1,13 @@
 <?php
 
 /**
- * send_single_email.php - Send a single email when submitted through  Mail Widget from the Squirrel Zepto Mail Extension
+ * email_webhook.php - Send a single email when called as an webhook as part of the Zepto Mail Extension
  *
  *
  * @client Squirrel Market Place Extension
  * @author ali
- * @since Fri 01 Dec 2023 17:00:00
+ * @since Fri 19 Jan 2024 15:00:00 
  **/
-
-require_once __DIR__ . '/constants.php';
-$requestOrigin = $_SERVER['HTTP_ORIGIN'];
-if (in_array($requestOrigin, ALLOWED_ORIGINS)) {
-    header("Access-Control-Allow-Origin: $requestOrigin");
-} else {
-    exit;
-}
 
 
 use ZeptoMailExtension\Model\ZeptoEmailRecords;
@@ -26,65 +18,66 @@ use Squirrel\Marketplace\AuthHelper;
 use Squirrel\Marketplace\ZeptoMailHelper;
 
 
-const CONTEXT = "Send Single Email"; //Add Module Name from received param
+const CONTEXT = "Zepto Mail Webhook";
 
+require_once __DIR__ . '/constants.php';
 require getenv('SQUIRREL_CLIENT_LIB_V2');
 $squirrelSc = new SquirrelClient("sqible_demo_crm", false, CONTEXT);
 
+$inputJSON = file_get_contents('php://input');
+$inputData = json_decode($inputJSON, true);
+
+$squirrelSc->log->info('Processing Email Webhook Request for Zepto Mail Extension', ['postParameters' => $inputData]);
+
 if (
-    !isSetAndNotEmpty($_POST['zgid'])
-    || !isSetAndNotEmpty($_POST["module_name"])
-    || !isSetAndNotEmpty($_POST["module_id"])
-    || !isSetAndNotEmpty($_POST["email_body"])
+    !isSetAndNotEmpty($inputData['org_id'])
+    || !isSetAndNotEmpty($inputData["module_name"])
+    || !isSetAndNotEmpty($inputData["module_id"])
+    || !isSetAndNotEmpty($inputData["login_userid"])
+    || !(isSetAndNotEmpty($inputData["email_template_id"]) || isSetAndNotEmpty($inputData["email_body"]) || isSetAndNotEmpty($inputData["email_subject"]))
 ) {
+
     // Should never occur as these needs to be set in the Email widget
-    $msg = "One or more of ZGID, Module Name, Module ID, Email Body or Loggedin User not set, please check the extension and try again.";
-    $squirrelSc->log->critical($msg, ['postParameters' => $_POST]);
+    $msg = "Missing one or more of Organisation Id, User Id, Module API Name, Record ID or Email Template ID/Email Body/Email Subject.";
+    $squirrelSc->log->critical($msg, ['postParameters' => $inputData]);
     sendResponse(false, $msg);
 }
 
-$squirrelSc->log->info('Processing Single Email Request for Zepto Mail Extension ', ['postParameters' => $_POST]);
-
-$zgid = $_POST["zgid"];
-$moduleName = $_POST['module_name'];
-$moduleURLName = $_POST['module_url_name'] ? $_POST['module_url_name'] : $_POST['module_name'];
-$moduleId = $_POST['module_id'];
-$emailSubject = $_POST['email_subject'];
-$emailBody = $_POST['email_body'];
-$loginUserId = $_POST['login_userid'];
-$emailAddress = isset($_POST['email_address']) ? $_POST['email_address'] : '';
-$scheduleAt = isset($_POST['schedule_at']) ? $_POST['schedule_at'] : '';
-$emailTemplateId = isset($_POST['email_template_id']) ? $_POST['email_template_id'] : '';
-$campaignName = isset($_POST['campaign_name']) ? $_POST['campaign_name'] : '';
-$timezone = isset($_POST['timezone']) ? $_POST['timezone'] : DEFAULT_TIMEZONE;
-$countryCode = isset($_POST['country']) ? $_POST['country'] : DEFAULT_COUNTRY_CODE;
-$emailSenderId = isset($_POST['sender_id']) ? $_POST['sender_id'] : DEFAULT_SENDER;
+$orgId = $inputData["org_id"];
+$moduleName = $inputData['module_name'];
+$moduleId = $inputData['module_id'];
+$loginUserId = $inputData['login_userid'];
+$emailBody = isset($inputData['email_body']) ? $inputData['email_body'] : '';
+$emailSubject = isset($inputData['email_subject']) ? $inputData['email_subject'] : '';
+$emailTemplateId = isset($inputData['email_template_id']) ? $inputData['email_template_id'] : '';
+$scheduleAt = isset($inputData['schedule_at']) ? $inputData['schedule_at'] : '';
+$emailAddress = isset($inputData['email_address']) ? $inputData['email_address'] : '';
+$campaignName = isset($inputData['campaign_name']) ? $inputData['campaign_name'] : '';
+$timezone = isset($inputData['timezone']) ? $inputData['timezone'] : DEFAULT_TIMEZONE;
+$countryCode = isset($inputData['country']) ? $inputData['country'] : DEFAULT_COUNTRY_CODE;
+$emailSenderId = isset($inputData['sender_id']) ? $inputData['sender_id'] : DEFAULT_SENDER;
 
 $authHelper = new AuthHelper($squirrelSc, CONTEXT);
 
-$client = Connections::where(["zgid" => $zgid])->first();
-
+$client = Connections::where(["zgid" => $orgId])->first();
 if (empty($client)) {
-    try {
-        $client = $authHelper->findClientByZGID($zgid);
-    } catch (Exception $e) {
-        $msg = "No Connection database entry for CRM with organisation ZGID {$zgid}. Should not occur. " . $e->getMessage();
-        $squirrelSc->log->critical($msg, ['postParameters' => $_POST]);
-        sendResponse(false, $msg);
-    }
+    $msg = "No Connection database entry for CRM with organisation Id {$orgId}.";
+    $squirrelSc->log->critical($msg, ['postParameters' => $inputData]);
+    sendResponse(false, $msg);
 }
 
 try {
     $authHelper->checkForExtensionVariables($client, $moduleName);
 } catch (Exception $e) {
-    $msg = "Error encountered while doing initial setup for Organisation {$zgid}. " . $e->getMessage();
-    $squirrelSc->log->error($msg, ['postParameters' => $_POST]);
+    $msg = "Error encountered while doing initial setup for Organisation {$orgId}. " . $e->getMessage();
+    $squirrelSc->log->error($msg, ['postParameters' => $inputData]);
     sendResponse(false, $msg);
 }
 
 $clientSc = $authHelper->getClientSc();
 $clientLocation = $authHelper->getClientLocation($client);
 
+$zgid = $client->zgid;
 $clientCode = $client->client_code;
 $zeptoMailApiKey = $client->zepto_mail_api_key;
 $moduleFieldMappings = json_decode($client->module_field_mappings);
@@ -92,11 +85,28 @@ $emailMappingKey = EMAIL_FIELD_MAPPING_DB_KEY . '' . $moduleName;
 $optoutMappingKey = OPTOUT_FIELD_MAPPING_DB_KEY . '' . $moduleName;
 $moduleEmailFieldMapping = $moduleFieldMappings->$emailMappingKey;
 $moduleOptoutFieldMapping = $moduleFieldMappings->$optoutMappingKey;
+$urlNameMappingKey = MODULE_URL_NAME_DB_KEY . '' . $moduleName;
+$moduleURLName = $moduleFieldMappings->$urlNameMappingKey;
 
+$extraData = json_decode($client->extra_data);
+$timezone = property_exists($extraData, 'timezone') ? $extraData->timezone : DEFAULT_TIMEZONE;
+$countryCode = property_exists($extraData, 'country') ? $extraData->country : DEFAULT_COUNTRY_CODE;
+$emailSenderId = $client->zepto_mail_sender_id ? $client->zepto_mail_sender_id : DEFAULT_SENDER;
 // Send errors to defined email by client - otherwise, send to default address
 $emailNotification = !empty($client->error_email) ? $client->error_email : ERROR_EMAIL_RECIPIENT;
 
 $zeptoMailHelper = new ZeptoMailHelper($clientSc, $zeptoMailApiKey);
+
+// Check if requires scheduling
+if (!empty($scheduleAt)) {
+    $dateObject = DateTime::createFromFormat('Y-m-d H:i:s', $scheduleAt);
+    if (!$dateObject) {
+        $msg = "The scheduled at date-time field doesn't contain a valid date time value - " . $scheduleAt;
+        $clientSc->log->error($msg, ['postParameters' => $inputData]);
+        sendResponse(false, $msg);
+    }
+    $scheduleAt = $zeptoMailHelper->getTZFormattedDate($scheduleAt, $timezone, 'Y-m-d H:i:s', 'd/m/Y h:i A');
+}
 
 try {
     $record = $clientSc->zoho->getRecord($moduleName, $moduleId);
@@ -105,13 +115,11 @@ try {
     }
 } catch (Exception $e) {
     $msg = "Error retrieving $moduleName record with ID $moduleId from CRM : Code- " . $e->getCode() . " Message- " . $e->getMessage();
-    $clientSc->log->error($msg, ['postParameters' => $_POST]);
+    $clientSc->log->error($msg, ['postParameters' => $inputData]);
     sendResponse(false, $msg);
 }
 
 try {
-    $loginUserId = $loginUserId != "" ? $loginUserId : $record->getOwner()->getId(); // Take record's owner instead of the one who is actioning
-
     $user = $zeptoMailHelper->getLoggedInUser($loginUserId);
     $recordOWnerEmail = $user->getEmail();
     if (!$user) {
@@ -119,7 +127,21 @@ try {
     }
 } catch (Exception $e) {
     $msg = "Error retrieving loggedin user data with ID $loginUserId from CRM : Code- " . $e->getCode() . " Message- " . $e->getMessage();
-    $clientSc->log->error($msg, ['postParameters' => $_POST]);
+    $clientSc->log->error($msg, ['postParameters' => $inputData]);
+}
+
+if ($emailBody == '') {
+    try {
+        $template = $clientSc->zoho->getRecord(EMAIL_TEMPLATES_FIELD_MAPPINGS['module_api_name'], $emailTemplateId);
+        if (!is_object($template)) {
+            throw new \Exception('Not able to retreive the record from CRM');
+        }
+        $emailBody = $template->getFieldValue(EMAIL_TEMPLATES_FIELD_MAPPINGS['email_body_field']);
+    } catch (Exception $e) {
+        $msg = "Error retrieving EMAIL Template record with ID $emailTemplateId from CRM : Code- " . $e->getCode() . " Message- " . $e->getMessage();
+        $clientSc->log->error($msg, ['postParameters' => $inputData]);
+        sendResponse(false, $msg);
+    }
 }
 
 $emailModuleConfiguration = [
@@ -145,16 +167,14 @@ $emailModuleConfiguration = [
 
 $emailParameters = $zeptoMailHelper->getEmailParameters($record, $user, $emailModuleConfiguration);
 if (isset($emailParameters['error'])) {
-    $clientSc->log->error($emailParameters['error'], ['postParameters' => $_POST]);
+    $clientSc->log->error($emailParameters['error'], ['postParameters' => $inputData]);
     sendResponse(false, $emailParameters['error']);
 }
-
 $emailResult = [];
 if (empty($scheduleAt)) {
     // Send message
     $emailResult = $zeptoMailHelper->sendEmail($emailParameters);
 
-    // Handle Errors from Zepto API
     if ($emailResult['message'] != "OK") {
         $msg = $emailResult['error']['details'] && $emailResult['error']['details'][0]['message']
             ? "Error from Zepto Mail - " . $emailResult['error']['details'][0]['message']
@@ -184,6 +204,7 @@ if (empty($scheduleAt)) {
         sendResponse(false, $msg);
     }
 }
+
 // Handle Success
 // Add to Email Records database
 $dbEmailRecord = (new ZeptoEmailRecords)->create([
@@ -207,12 +228,12 @@ try {
         sendResponse(true, $msg);
     } else {
         $msg = "Exception occurred while creating Email History record in CRM";
-        $clientSc->log->error($msg, ['postParameters' => $_POST, 'emailHistoryData' => $emailHistoryData]);
+        $clientSc->log->error($msg, ['postParameters' => $inputData, 'emailHistoryData' => $emailHistoryData]);
         sendResponse(false, $msg);
     }
 } catch (Exception $e) {
     $msg = "Exception occurred while creating Email History record in CRM - Code- " . $e->getCode() . " Message- " . $e->getMessage() . " Details- " . print_r($e->getExceptionDetails(), true);
-    $clientSc->log->error($msg, ['postParameters' => $_POST, 'emailHistoryData' => $emailHistoryData, 'exception' => (array) $e]);
+    $clientSc->log->error($msg, ['postParameters' => $inputData, 'emailHistoryData' => $emailHistoryData, 'exception' => (array) $e]);
     sendResponse(false, $msg);
 }
 

@@ -89,6 +89,10 @@
                          Options will be dynamically populated by jQuery -->
                     <!-- </select> -->
                 </fieldset>
+                <fieldset class="grid grid-cols-3">
+                    <label for="email-subject" class="font-medium mt-1">Email Subject <span class="text-red-500">*</span></label>
+                    <input type="text" id="email-subject" name="email-subject" required class="col-span-2 rounded-md py-2 px-3 ring-1 ring-gray-300">
+                </fieldset>
 
                 <!-- Field 6: Choose Email History Owner -->
                 <fieldset class="grid grid-cols-3 group fieldset-tooltip">
@@ -192,7 +196,7 @@
             </div>
             <div class="template-section">
                 <div class="grid grid-cols-3">
-                    <p class="template-title font-medium">Message Template</p>
+                    <p class="template-title font-medium">Email Template</p>
                     <p id="template-value"></p>
                 </div>
             </div>
@@ -200,7 +204,11 @@
 
         <section class="message-section p-5 space-y-3">
             <div class="grid grid-cols-3">
-                <p class="message-title font-medium">Message</p>
+                <p class="message-subject font-medium">Email Subject</p>
+                <p id="message-subject-value" class="col-span-2"></p>
+            </div>
+            <div class="grid grid-cols-3">
+                <p class="message-title font-medium">Email Body</p>
                 <p id="message-value" class="col-span-2"></p>
             </div>
         </section>

@@ -15,7 +15,7 @@ const MODULE_URL_NAME_DB_KEY = "module_url_name_";
 const ERROR_EMAIL_RECIPIENT = 'developer+burstextensionv2@squirrel.biz';
 const DEFAULT_COUNTRY_CODE = "AU";
 const DEFAULT_TIMEZONE = "Australia/Sydney";
-const DEFAULT_SENDER = 'noreply@scripts.squirrelcrmhub.com.au';
+const DEFAULT_SENDER = 'developer@sqible.com.au';
 
 const EXTENSION_NAMESPACE = 'zeptomailwidgetdemo__';
 
@@ -31,6 +31,7 @@ const EMAIL_HISTORY_FIELD_MAPPINGS = [
     'cm_url_field' => EXTENSION_NAMESPACE . 'Custom_Module_Record_URL',
     'email_field' => EXTENSION_NAMESPACE . 'Recipient_Email',
     'email_template_field' => EXTENSION_NAMESPACE . 'Email_Template',
+    'email_subject_field' => EXTENSION_NAMESPACE . 'Email_Subject',
     'email_content_field' => EXTENSION_NAMESPACE . 'Email_Content',
     'scheduled_time_field' => EXTENSION_NAMESPACE . 'Scheduled_Time',
     'status_field' => EXTENSION_NAMESPACE . 'Status',

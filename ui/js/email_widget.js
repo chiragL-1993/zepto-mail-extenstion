@@ -174,15 +174,17 @@ $(document).ready(async function () {
             var selectedValue = $templateSelect.val();
             var previousValue = $('#message-template').data('prevTemplate');
             //var emailBody = $('#email-body').val();
+            var emailSubject = $('#email-subject').val();
             var emailBody = emailBodyEditor.getData();;
             let emailBodyTextOnly = $('<div>').html(emailBody).text().replace(/\${.*?}/g, '');
-            if (emailBodyTextOnly && emailBodyTextOnly.trim()) {
+            if (emailBodyTextOnly && emailBodyTextOnly.trim() && emailSubject) {
                 var confirmationMessage = "This action will overwrite the Email Message. Are you sure you want to proceed?";
                 showConfirmationDialog(confirmationMessage, function (proceed) {
                     if (proceed) {
                         // Save the current template for future reference
                         $('#message-template').data('prevTemplate', selectedValue);
                         //$('#email-body').val('');
+                        $('#email-subject').val('');
                         emailBodyEditor.setData('');// Clear Email Template Body
                         insertTemplateText($templateSelect);
                     } else {
@@ -224,6 +226,9 @@ $(document).ready(async function () {
 
         // Bind blur event for select field
         $('#sender-id').on('blur', function () {
+            pushToLocalStorage(entityName);
+        });
+        $('#email-subject').on('blur', function () {
             pushToLocalStorage(entityName);
         });
 
@@ -303,7 +308,8 @@ async function populateTemplates(entityName) {
             $('#message-template').append($('<option>', {
                 value: template[EMAIL_TEMPLATE_FIELDS[0]],
                 text: template[EMAIL_TEMPLATE_FIELDS[1]],
-                'data-template-text': template[EMAIL_TEMPLATE_FIELDS[3]]
+                'data-template-text': template[EMAIL_TEMPLATE_FIELDS[3]],
+                'data-template-subject': template[EMAIL_TEMPLATE_FIELDS[7]]
             }));
         });
     }
@@ -399,9 +405,12 @@ function insertMergeField($mergeField, selectedModule) {
 }
 
 function insertTemplateText($selectedTemplate) {
+    console.log($selectedTemplate);
     var selectedOption = $selectedTemplate.find('option:selected');
     var templateText = selectedOption.data('template-text');
+    var templateSubject = selectedOption.data('template-subject');
     //$('#email-body').val(templateText);
+    $('#email-subject').val(templateSubject);
     emailBodyEditor.setData(templateText);
     // Push to Cache
     pushToLocalStorage(entityName);
@@ -413,6 +422,7 @@ function showFormPage() {
     $('#campaign-value').text('');
     $('#template-value').text('');
     $('#message-value').text('');
+    $('#message-subject-value').text('');
     $('#schedule-value').text('');
     clearNotices();
 
@@ -457,15 +467,19 @@ function showConfirm() {
     if ($('#add-optout').is(':checked')) {
         emailBody += OPTOUT_TEXT;
     }
-    const creditsRequired = calculateEmailCredits(emailBody);
+    //const creditsRequired = calculateEmailCredits(emailBody);
+    //let recordsReadyForEmailKeysArray = Object.keys(recordsReadyForEmail);
+    //$('#credit-value').text(creditsRequired * recordsReadyForEmailKeysArray.length);
     let recordsReadyForEmailKeysArray = Object.keys(recordsReadyForEmail);
-    $('#credit-value').text(creditsRequired * recordsReadyForEmailKeysArray.length);
+    const creditsRequired = calculateEmailCredits(recordsReadyForEmailKeysArray);
+    $('#credit-value').text(creditsRequired);
     $('#recipient-value').text(bulkEmail || viewEmail ? entityId.length : 1);
 
 
     $('#campaign-value').text($('#campaign-name').val() ? $('#campaign-name').val() : ' - ');
     $('#template-value').text($('#message-template  option:selected').val() ? $('#message-template  option:selected').text() : ' - ');
     $('#message-value').html(nl2br(emailBody));
+    $('#message-subject-value').text($('#email-subject').val());
     $('#schedule-value').text($('#send-later-toggle').is(':checked') ? $('#schedule-date').val() : 'Immediate');
 
     // Hide form, show preview
@@ -548,7 +562,10 @@ function validateForm() {
         isValid = false;
         $('#sender-id').addClass('invalid');
     }
-
+    if (!$('#email-subject').val().trim()) {
+        isValid = false;
+        $('#email-subject').addClass('invalid');
+    }
     if (viewEmail && !$('#savedViews').val()) {
         isValid = false;
         $('#savedViews').addClass('invalid');
@@ -671,14 +688,7 @@ async function getEntitiesData(chunk) {
 
                     if (!entity[optoutFieldMapping]) {
                         const email = entity[emailFieldMapping];
-                        if (!email || email.trim() === "") {
-                            errorArray.emptyEmail.push({ text: ERROR_TEXT.emptyEmail, count: 1 });
-                        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-                            errorArray.invalidEmail.push({ text: ERROR_TEXT.invalidEmail, count: 1 });
-                        } else {
-                            emailAddress = email;
-                            recordsReadyForEmail[entityId] = email;
-                        }
+
                         if (email.isEmpty) {
                             errorArray.emptyEmail.push({ ...entity });
                         }
@@ -769,6 +779,7 @@ async function submitFormForSingleEmail() {
     formData.push({ name: 'schedule_at', value: $('#schedule-date').val() });
     formData.push({ name: 'country', value: countryCode });
     formData.push({ name: 'sender_id', value: $('#sender-id').val() });
+    formData.push({ name: 'email_subject', value: $('#email-subject').val() });
     //let emailBody = $('#email-body').val()
     let emailBody = emailBodyEditor.getData();
     if ($('#add-optout').is(':checked')) {
@@ -832,6 +843,7 @@ async function submitFormForBulkEmail() {
     formData.push({ name: 'schedule_at', value: $('#schedule-date').val() });
     formData.push({ name: 'country', value: countryCode });
     formData.push({ name: 'sender_id', value: $('#sender-id').val() });
+    formData.push({ name: 'email_subject', value: $('#email-subject').val() });
     //let emailBody = $('#email-body').val()
     let emailBody = emailBodyEditor.getData();
     if ($('#add-optout').is(':checked')) {
@@ -918,10 +930,11 @@ function pushToLocalStorage(key) {
     let scheduledDate = $('#schedule-date').val();
     let senderNumber = $('#sender-id').val();
     //let emailBody = $('#email-body').val();
+    let emailSubject = $('#email-subject').val();
     let emailBody = emailBodyEditor.getData();
     let allowOptout = $('#add-optout').prop('checked');
 
-    let cacheData = { campaignName, messageTemplate, sendLater, scheduledDate, senderNumber, emailBody, allowOptout };
+    let cacheData = { campaignName, messageTemplate, sendLater, scheduledDate, senderNumber, emailBody, allowOptout, emailSubject };
     saveToLocalStorage(key, cacheData);
 }
 
@@ -934,6 +947,7 @@ function copyFromLocalStorage(key, sendLaterSwitch, addOptOutSwitch) {
         if ($('#sender-id').find(`option[value="${cachedData.senderNumber}"]`).length > 0) {
             $('#sender-id').val(cachedData.senderNumber);
         }
+        $('#email-subject').val(cachedData.emailSubject);
         //$('#email-body').val(cachedData.emailBody);
         emailBodyEditor.setData(cachedData.emailBody);
         sendLaterSwitch.setPosition(cachedData.sendLater);

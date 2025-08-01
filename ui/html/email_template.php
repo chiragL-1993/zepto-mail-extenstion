@@ -24,7 +24,7 @@
         <form id="email-template-form" action="#" method="post" class="divide-y">
             <header class="p-5 flex space-x-5 items-center">
                 <div class="shadow border rounded items-center flex px-3 py-2">
-                    <i class="fa-solid fa-message text-xl"></i>
+                    <i class="fa-regular fa-envelope text-xl"></i>
                 </div>
                 <p class="text-gray-600">Create a custom template by selecting your desired module; the corresponding fields for that module will be presented for use as merge fields.</p>
             </header>
@@ -44,7 +44,11 @@
                         <!-- Options will be dynamically populated by jQuery -->
                     </select>
                 </fieldset>
-
+                <fieldset class="grid grid-cols-3">
+                    <!-- Field 1: Email Template Subject -->
+                    <label for="email-template-subject" class="font-medium mt-1">Email Template Subject <span class="text-red-600">*</span></label>
+                    <input type="text" id="email-template-subject" name="email-template-subject" required class="col-span-2 rounded-md py-2 px-3 ring-1 ring-gray-300">
+                </fieldset>
                 <fieldset class="grid grid-cols-3">
                     <!-- Field 3: Email Template Body -->
                     <label for="email-template-body" class="font-medium">Email Template Body <span class="text-red-600">*</span></label>

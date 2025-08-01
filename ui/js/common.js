@@ -15,7 +15,8 @@ const EMAIL_TEMPLATE_FIELDS = [
     EXTENSION_NAMESPACE + 'Email_Templates_Body',
     'Owner',
     'Modified_By',
-    EXTENSION_NAMESPACE + 'Status'
+    EXTENSION_NAMESPACE + 'Status',
+    EXTENSION_NAMESPACE + 'Email_Templates_Subject',
 ];
 const EMAIL_HISTORY_FIELDS = [
     'id',
@@ -281,7 +282,7 @@ function validateMergeFields(text, module1, module2) {
     return true; // No invalid merge fields found
 }
 
-function calculateEmailCredits(text) {
+/*function calculateEmailCredits(text) {
     // Constants
     const standardMaxLength = 160;
     const concatenatedMaxLength = 153;
@@ -313,15 +314,34 @@ function calculateEmailCredits(text) {
         const length = calculateLengthWithEscapeCharacters(str);
 
         if (emailType === 'unicode') {
-            return (length <= 70 ? Math.ceil(length / unicodeStandardMaxLength) : Math.ceil(length / unicodeConcatenatedMaxLength));
+            return (length <= 5000 ? Math.ceil(length / unicodeStandardMaxLength) : Math.ceil(length / unicodeConcatenatedMaxLength));
         } else {
-            return (length <= 160 ? Math.ceil(length / standardMaxLength) : Math.ceil(length / concatenatedMaxLength));
+            return (length <= 10000 ? Math.ceil(length / standardMaxLength) : Math.ceil(length / concatenatedMaxLength));
         }
     }
 
     // Main function
     const credits = calculateCredits(text);
     return credits;
+}*/
+
+/**
+ * Calculate email credits for Zepto Mail
+ * @param {Array|string} recipients - Single email or array of recipient emails
+ * @returns {number} Email credits required (1 per recipient)
+ */
+function calculateEmailCredits(recipients) {
+    if (!recipients) return 0;
+
+    if (typeof recipients === 'string') {
+        return 1; // Single recipient
+    }
+
+    if (Array.isArray(recipients)) {
+        return recipients.length;
+    }
+
+    return 0;
 }
 
 // Processes array in chunk with the given chunk size

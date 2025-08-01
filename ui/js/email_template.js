@@ -2,7 +2,7 @@ var entityId, orgId, buttonPosition;
 var isModuleSelected = false;
 let emailTemplateEditor;
 const ERROR_TEXT = {
-    emailLength: 'Email body length exceeds the max character limit allowed by Burst, please shorten it',
+    //emailLength: 'Email body length exceeds the max character limit allowed by Burst, please shorten it',
     invalidMergeFields: 'Invalid merge fields found, please check and remove the invalid merge fields'
 }
 
@@ -92,6 +92,7 @@ $(document).ready(async function () {
                 $('#module-name').val(templateRecord.data[0][EMAIL_TEMPLATE_FIELDS[2]]);
                 //$('#email-template-body').val(templateRecord.data[0][EMAIL_TEMPLATE_FIELDS[3]]);
                 emailTemplateEditor.setData(templateRecord.data[0][EMAIL_TEMPLATE_FIELDS[3]]);
+                $('#email-template-subject').val(templateRecord.data[0][EMAIL_TEMPLATE_FIELDS[7]]);
                 $('#status').val(templateRecord.data[0][EMAIL_TEMPLATE_FIELDS[6]]);
                 // Trigger the change event to populate the module merge fields
                 $('#module-name').trigger('change');
@@ -193,6 +194,21 @@ function insertMergeField($mergeField, selectedModule) {
     if (!emailTemplateEditor) return;
 
     const selectedOption = $mergeField.val();
+    if (!selectedOption) return;
+
+    const mergeTag = '${' + selectedModule + '.' + selectedOption + '}';
+
+    emailTemplateEditor.model.change(writer => {
+        const insertPosition = emailTemplateEditor.model.document.selection.getFirstPosition();
+        writer.insertText(mergeTag, insertPosition);
+    });
+
+    $mergeField.val(''); // Reset the dropdown
+}
+/*function insertMergeField($mergeField, selectedModule) {
+    if (!emailTemplateEditor) return;
+
+    const selectedOption = $mergeField.val();
     const mergeTag = '${' + selectedModule + '.' + selectedOption + '}';
 
     const viewFragment = emailTemplateEditor.data.processor.toView(mergeTag);
@@ -204,7 +220,7 @@ function insertMergeField($mergeField, selectedModule) {
     });
 
     $mergeField.val(''); // Reset the dropdown
-}
+}*/
 /*function insertMergeField($mergeField, selectedModule) {
     var cursorPosition = $('#email-template-body').prop('selectionStart');
     var selectedOption = $mergeField.val();
@@ -260,18 +276,19 @@ function validateForm() {
     if (emailTemplateEditor) {
         let emailBody = emailTemplateEditor.getData().trim();
         let selectedModule = $('#module-name').val();
-        const creditsRequired = calculateEmailCredits(emailBody);
+        //const creditsRequired = calculateEmailCredits(emailBody);
         const isValidMergeFields = validateMergeFields(emailBody, USER_MODULE, selectedModule);
 
         // Strip HTML and merge fields for validation
         let textOnly = $('<div>').html(emailBody).text().replace(/\${.*?}/g, '').trim();
 
         if (textOnly) {
-            if (creditsRequired > 4) {
+            /*if (creditsRequired > 10) {
                 isValid = false;
                 $('#email-error').show();
                 $('#email-error-text').text(ERROR_TEXT.emailLength);
-            } else if (!isValidMergeFields) {
+            }*/
+            if (!isValidMergeFields) {
                 isValid = false;
                 $('#email-error').show();
                 $('#email-error-text').text(ERROR_TEXT.invalidMergeFields);
@@ -306,6 +323,7 @@ async function submitForm() {
     templateData[EMAIL_TEMPLATE_FIELDS[1]] = $('#email-template-name').val();
     templateData[EMAIL_TEMPLATE_FIELDS[2]] = $('#module-name').val();
     templateData[EMAIL_TEMPLATE_FIELDS[3]] = emailTemplateEditor.getData(); //$('#email-template-body').val();
+    templateData[EMAIL_TEMPLATE_FIELDS[7]] = $('#email-template-subject').val();
     templateData[EMAIL_TEMPLATE_FIELDS[6]] = $('#status').val();
     console.log(templateData);
     if (!entityId) {

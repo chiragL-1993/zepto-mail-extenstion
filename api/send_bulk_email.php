@@ -49,6 +49,7 @@ $zgid = $_POST["zgid"];
 $moduleName = $_POST['module_name'];
 $moduleURLName = $_POST['module_url_name'] ? $_POST['module_url_name'] : $_POST['module_name'];
 $moduleData = $_POST['module_data'];
+$emailSubject = $_POST['email_subject'];
 $emailBody = $_POST['email_body'];
 $loginUserId = $_POST['login_userid'];
 $scheduleAt = isset($_POST['schedule_at']) ? $_POST['schedule_at'] : '';
@@ -97,9 +98,9 @@ $emailModuleConfiguration = [
     'zgid' => $zgid,
     'module' => $moduleName,
     'module_url_name' => $moduleURLName,
-    'module_id' => $moduleId,
     'email_field' => $moduleEmailFieldMapping,
     'optout_field' => $moduleOptoutFieldMapping,
+    'email_subject' => $emailSubject,
     'email_body' => $emailBody,
     'email_from' => $emailSenderId,
     'email_address' => $emailAddress,
@@ -109,8 +110,7 @@ $emailModuleConfiguration = [
     'campaign_name' => $campaignName,
     'client_location' => $clientLocation,
     'timezone' => $timezone,
-    'country' => $countryCode,
-    'subject' => 'Zepto Mail '
+    'country' => $countryCode
 ];
 
 // Check if requires scheduling
