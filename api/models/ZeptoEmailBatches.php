@@ -15,6 +15,7 @@ use Carbon\Carbon;
  * @property string module_records
  * @property string zepto_mail_configurations
  * @property string status
+ * @property datetime schedule_at
  * @property string attempts
  * @property Carbon created_at
  * @property Carbon updated_at
@@ -30,5 +31,4 @@ class ZeptoEmailBatches extends \SquirrelModel
      */
     //protected $table = "sms_batches_v2";
     protected $table = "zepto_email_batches";
-
 }

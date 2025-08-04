@@ -183,7 +183,10 @@ if (empty($scheduleAt)) {
 
         sendResponse(false, $msg);
     }
+} else {
+    $scheduleAt = $zeptoMailHelper->convertTZDateToUTC($scheduleAt, $timezone, 'd/m/Y h:i A', 'Y-m-d H:i:s');
 }
+
 // Handle Success
 // Add to Email Records database
 $dbEmailRecord = (new ZeptoEmailRecords)->create([
@@ -193,7 +196,8 @@ $dbEmailRecord = (new ZeptoEmailRecords)->create([
     'parameters' => json_encode($emailParameters),
     'response' => json_encode($emailResult),
     'zepto_mail_id' => (string) $emailResult['request_id'],
-    'status' => $scheduleAt ? EMAIL_HISTORY_STATUSES['scheduled'] : EMAIL_HISTORY_STATUSES['sent']
+    'schedule_at' => $scheduleAt ? $scheduleAt : NULL,
+    'status' => $scheduleAt ? EMAIL_HISTORY_STATUSES['scheduled'] : EMAIL_HISTORY_STATUSES['sent'],
 ]);
 
 $emailHistoryData = $zeptoMailHelper->getEmailRecordArray($emailModuleConfiguration, $emailParameters, $emailResult, $dbEmailRecord->id);

@@ -24,7 +24,7 @@ $(document).ready(async function () {
 
         // Get Modules List and push to Modules to enable field
         var moduleData = await ZOHO.CRM.META.getModules();
-        console.log(moduleData);
+        //console.log(moduleData);
         $.each(moduleData.modules, function (index, module) {
             if (isModuleEligible(module)) {
                 crmModules[module.api_name] = { 'plural_label': module.plural_label, 'url_name': module.module_name };

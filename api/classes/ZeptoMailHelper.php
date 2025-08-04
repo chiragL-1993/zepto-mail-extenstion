@@ -50,7 +50,7 @@ class ZeptoMailHelper
 
     public function getEmailParameters(ZCRMRecord $record, $user, $configuration)
     {
-        $email = $configuration['email'] ?: $record->getFieldValue($configuration['email_field']);
+        $email = $configuration['email_address'] ?: $record->getFieldValue($configuration['email_field']);
         if (empty($email)) {
             return ['error' => 'Missing recipient email address'];
         }
@@ -84,6 +84,49 @@ class ZeptoMailHelper
         ];
     }
 
+    /*public function getEmailBatchParameters(ZCRMRecord $record, $user, $configuration)
+    {
+        $email_address = $configuration['email_address'];
+        $toList = [];
+        if (!empty($email_address)) {
+            foreach ($email_address as $email) {
+                $toList[] = [
+                    'email_address' => [
+                        'address' => $email,
+                    ]
+                ];
+            }
+        }
+        if (empty($toList)) {
+            return ['error' => 'Missing recipient email address'];
+        }
+        $subject = $this->replaceMergeFields($configuration['email_subject'], $record, $user, $configuration);
+        $body = $this->replaceMergeFields($configuration['email_body'], $record, $user, $configuration);
+
+        if (empty($body)) {
+            return ['error' => 'Email body is empty'];
+        }
+
+        $fromAddress = $configuration['email_from'] ?: DEFAULT_SENDER;
+        $replyAddress = $configuration['reply_to'] ?: DEFAULT_SENDER;
+
+        return [
+            'from' => [
+                'address' => $fromAddress,
+                //'name' => 'Zepto Mailer', 
+            ],
+            'to' => $toList,
+            'reply_to' => [[
+                'address' => $replyAddress
+            ]],
+            'subject' => $subject,
+            'htmlbody' => $body,
+            'textbody' => strip_tags($body),
+            "track_clicks" => true,
+            "track_opens" => true,
+            //'bounce_address' => $configuration['bounce'] ?? 'bounce@yourdomain.com' // Optional
+        ];
+    }*/
     public function replaceMergeFields($text, ZCRMRecord $record, $user, $configuration)
     {
         $pattern = '/\${(.*?)\.(.*?)}/';
@@ -179,11 +222,12 @@ class ZeptoMailHelper
 
         $response = curl_exec($ch);
         $error = curl_error($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        //$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
         if ($error) {
-            throw new Exception("cURL Error: $error");
+            //throw new Exception("cURL Error: $error");
+            return $error;
         }
 
         $result = json_decode($response, true);
@@ -193,6 +237,36 @@ class ZeptoMailHelper
 
         return $result;
     }
+
+    /*public function sendBatchEmail(array $params)
+    {
+        $ch = curl_init('https://api.zeptomail.com/v1.1/email/batch');
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST => true,
+            CURLOPT_HTTPHEADER => [
+                'Authorization: ' . $this->zeptoApiKey,
+                'Content-Type: application/json',
+                "cache-control: no-cache",
+                'Accept: application/json',
+            ],
+            CURLOPT_POSTFIELDS => json_encode($params),
+        ]);
+
+        $response = curl_exec($ch);
+        $error = curl_error($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($error) {
+            throw new Exception("cURL Error: $error");
+        }
+
+        $result = json_decode($response, true);
+       
+        return $result;
+    }*/
+
 
     public function logEmailRecord($recordId, $emailParams, $status = 'sent')
     {

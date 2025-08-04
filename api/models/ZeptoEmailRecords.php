@@ -17,6 +17,7 @@ use Carbon\Carbon;
  * @property string response
  * @property string email_history_id
  * @property string zepto_mail_id
+ * @property datetime schedule_at
  * @property string status
  * @property int reply_received
  * @property int parent_email_id
@@ -35,5 +36,4 @@ class ZeptoEmailRecords extends \SquirrelModel
      */
     //protected $table = "sms_records_v2";
     protected $table = "zepto_email_records";
-
 }

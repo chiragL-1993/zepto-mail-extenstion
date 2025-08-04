@@ -110,9 +110,18 @@
                 </div>
 
                 <div class="grid grid-cols-3 gap-5 !mt-4">
-                    <fieldset class="space-y-1 flex flex-col">
+                    <fieldset class="space-y-1 flex flex-col group fieldset-tooltip">
                         <label for="api-key" class="font-medium">Zepto Mail API Key <span class="text-red-600">*</span></label>
                         <input type="text" id="api-key" name="api-key" required class="rounded-md py-2 px-3 ring-1 ring-gray-300">
+
+                        <div class="tooltip-text">
+                            To Generate a Zepto Mail Api Token Please refer below URL:
+                            <br />
+                            <strong>URL: </strong>
+                            <span class="text-gray-500">
+                                <a href="https://www.zoho.com/zeptomail/help/api/email-sending.html" target="_blank" class="underline text-gray-500 hover:text-blue-500">https://www.zoho.com/zeptomail/help/api/email-sending.html</a>
+                            </span>
+                        </div>
                     </fieldset>
                     <!-- <fieldset class="relative flex flex-col space-y-2 group fieldset-tooltip">
                         <div class="flex items-center">
@@ -187,7 +196,7 @@
                 <div class="mb-2">
                     <strong>URL to Notify: </strong>
                     <span class="text-gray-500">
-                        <a href="https://email-extension.au.squirrel.biz/webhook" target="_blank" class="underline text-gray-500 hover:text-blue-500">https://email-extension.au.squirrel.biz/webhook</a>
+                        <a href="https://scripts.squirrelcrmhub.com.au/zoho_scripts/marketplace/zepto-mail-extenstion/api/email_webhook.php" target="_blank" class="underline text-gray-500 hover:text-blue-500">https://scripts.squirrelcrmhub.com.au/zoho_scripts/marketplace/zepto-mail-extenstion/api/email_webhook.php</a>
                     </span>
                     <span> (Method: Post)</span>
                 </div>

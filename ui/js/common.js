@@ -60,7 +60,7 @@ const PHONE_NUMBER_TYPE = [
 ]
 const DEFAULT_COUNTRY_CODE = 'AU';
 
-const OPTOUT_TEXT = '\nTo opt-out reply STOP';
+const OPTOUT_TEXT = '\nTo opt-out reply Unsubscribe';
 
 const DEFAULT_SENDER = 'SHARED EMAIL ID';
 const ALPHANUMERIC_SENDER = 'Alphanumeric Sender ID';
@@ -149,7 +149,7 @@ const getSavedSettings = async function (orgId) {
 function isSettingsPresent(savedData, module = '') {
     var checkForModule = module ? 'checkForModule' : 'dontCheckForModule';
     var isSettingsPresent = false;
-    console.log(checkForModule);
+    //console.log(checkForModule);
     switch (checkForModule) {
         case 'checkForModule':
             if (savedData.data
@@ -201,6 +201,7 @@ const isModuleEligible = function (module) {
         MODULES_TO_INCLUDE.includes(module.api_name)
         || (module.api_supported
             && !module.api_name.toLowerCase().includes('extension')
+            && !module.api_name.toLowerCase().includes('demo')
             && module.generated_type == 'custom')
     ) {
         return true;
