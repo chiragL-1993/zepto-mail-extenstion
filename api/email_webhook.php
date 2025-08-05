@@ -24,29 +24,40 @@ require_once __DIR__ . '/constants.php';
 require getenv('SQUIRREL_CLIENT_LIB_V2');
 $squirrelSc = new SquirrelClient("sqible_demo_crm", false, CONTEXT);
 
-$inputJSON = file_get_contents('php://input');
-$inputData = json_decode($inputJSON, true);
+//$inputJSON = file_get_contents('php://input');
+//$inputJSON = 'record_id=6768420000002394214&module_api_name=Leads&email_template_id=6768420000002394004&user_id=6768420000000562001&org_id=889066118';
+//$inputData = json_decode($inputJSON, true);
+// $_POST = [
+//     "record_id" => "6768420000002394306",
+//     "module_api_name" => "Leads",
+//     "email_template_id" => "6768420000002394004",
+//     "user_id" => "6768420000000562001",
+//     "org_id" => "889066118",
+// ];
+$inputData = $_POST;
+
 
 $squirrelSc->log->info('Processing Email Webhook Request for Zepto Mail Extension', ['postParameters' => $inputData]);
 
 if (
     !isSetAndNotEmpty($inputData['org_id'])
-    || !isSetAndNotEmpty($inputData["module_name"])
-    || !isSetAndNotEmpty($inputData["module_id"])
-    || !isSetAndNotEmpty($inputData["login_userid"])
-    || !(isSetAndNotEmpty($inputData["email_template_id"]) || isSetAndNotEmpty($inputData["email_body"]) || isSetAndNotEmpty($inputData["email_subject"]))
+    || !isSetAndNotEmpty($inputData["module_api_name"])
+    || !isSetAndNotEmpty($inputData["record_id"])
+    || !isSetAndNotEmpty($inputData["user_id"])
+    || !(isSetAndNotEmpty($inputData["email_template_id"]) /*|| isSetAndNotEmpty($inputData["email_body"]) || isSetAndNotEmpty($inputData["email_subject"])*/)
 ) {
 
     // Should never occur as these needs to be set in the Email widget
-    $msg = "Missing one or more of Organisation Id, User Id, Module API Name, Record ID or Email Template ID/Email Body/Email Subject.";
+    //$msg = "Missing one or more of Organisation Id, User Id, Module API Name, Record ID or Email Template ID/Email Body/Email Subject.";
+    $msg = "Missing one or more of Organisation Id, User Id, Module API Name, Record ID or Email Template ID.";
     $squirrelSc->log->critical($msg, ['postParameters' => $inputData]);
     sendResponse(false, $msg);
 }
 
 $orgId = $inputData["org_id"];
-$moduleName = $inputData['module_name'];
-$moduleId = $inputData['module_id'];
-$loginUserId = $inputData['login_userid'];
+$moduleName = $inputData['module_api_name'];
+$moduleId = $inputData['record_id'];
+$loginUserId = $inputData['user_id'];
 $emailBody = isset($inputData['email_body']) ? $inputData['email_body'] : '';
 $emailSubject = isset($inputData['email_subject']) ? $inputData['email_subject'] : '';
 $emailTemplateId = isset($inputData['email_template_id']) ? $inputData['email_template_id'] : '';
@@ -60,6 +71,7 @@ $emailSenderId = isset($inputData['sender_id']) ? $inputData['sender_id'] : DEFA
 $authHelper = new AuthHelper($squirrelSc, CONTEXT);
 
 $client = Connections::where(["zgid" => $orgId])->first();
+
 if (empty($client)) {
     $msg = "No Connection database entry for CRM with organisation Id {$orgId}.";
     $squirrelSc->log->critical($msg, ['postParameters' => $inputData]);
@@ -110,6 +122,7 @@ if (!empty($scheduleAt)) {
 
 try {
     $record = $clientSc->zoho->getRecord($moduleName, $moduleId);
+    $emailAddress = $record->getFieldValue('Email');
     if (!is_object($record)) {
         throw new \Exception('Not able to retreive the record from CRM');
     }
@@ -130,13 +143,14 @@ try {
     $clientSc->log->error($msg, ['postParameters' => $inputData]);
 }
 
-if ($emailBody == '') {
+if ($emailBody == '' || $emailSubject == '') {
     try {
         $template = $clientSc->zoho->getRecord(EMAIL_TEMPLATES_FIELD_MAPPINGS['module_api_name'], $emailTemplateId);
         if (!is_object($template)) {
             throw new \Exception('Not able to retreive the record from CRM');
         }
         $emailBody = $template->getFieldValue(EMAIL_TEMPLATES_FIELD_MAPPINGS['email_body_field']);
+        $emailSubject = $template->getFieldValue(EMAIL_TEMPLATES_FIELD_MAPPINGS['email_subject_field']);
     } catch (Exception $e) {
         $msg = "Error retrieving EMAIL Template record with ID $emailTemplateId from CRM : Code- " . $e->getCode() . " Message- " . $e->getMessage();
         $clientSc->log->error($msg, ['postParameters' => $inputData]);

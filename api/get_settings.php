@@ -1,7 +1,7 @@
 <?php
 
 /**
- * get_settings.php - Get the settings for the SMS Setting Webtab/Widget from the Squirrel Burst SMS Extension V2
+ * get_settings.php - Get the settings for the Email Setting Webtab/Widget from the Squirrel Zepto Mail Extension 
  *
  *
  * @client Squirrel Market Place Extension
@@ -19,15 +19,14 @@ if (in_array($requestOrigin, ALLOWED_ORIGINS)) {
     exit;
 }*/
 
-//use Squirrel\BurstSMS;
 
 use ZeptoMailExtension\Model\Connections;
 use ZeptoMailExtension\Model\Options;
 
-//use Squirrel\Marketplace\AuthHelper;
-use Squirrel\Marketplace\SMSHelper;
+use Squirrel\Marketplace\AuthHelper;
+use Squirrel\Marketplace\ZeptoMailHelper;
 
-const CONTEXT = "Get Burst SMS Settings";
+const CONTEXT = "Get Zepto Email Settings";
 
 require getenv('SQUIRREL_CLIENT_LIB_V2');
 
@@ -39,7 +38,7 @@ if (!isset($_GET['orgid'])) {
 
 $orgId = $_GET["orgid"];
 $squirrelSc = new SquirrelClient("sqible_demo_crm", false, CONTEXT);
-//$authHelper = new AuthHelper($squirrelSc, CONTEXT);
+$authHelper = new AuthHelper($squirrelSc, CONTEXT);
 
 $client = Connections::where(["org_id" => $orgId])->first();
 if (empty($client)) {

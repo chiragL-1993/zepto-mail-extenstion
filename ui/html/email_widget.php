@@ -1,23 +1,3 @@
-<!-- <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Send SMS</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/abpetkov/switchery/dist/switchery.min.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-    <script src="https://unpkg.com/tailwindcss-cdn@3.3.4/tailwindcss.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script src="https://cdn.jsdelivr.net/gh/abpetkov/switchery/dist/switchery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/google-libphonenumber@3.2.33/dist/libphonenumber.min.js"></script>
-    <script src="https://live.zwidgets.com/js-sdk/1.2/ZohoEmbededAppSDK.min.js"></script>
-    <script src="js/common.js"></script>
-    <script src="js/sms_widget.js"></script>
-    <link rel="stylesheet" href="css/common.css" />
-</head> -->
-
 <body class="text-xs text-gray-800">
 
     <div id="error-container" style="display: none;" class="m-5 p-10 rounded border flex justify-between items-center divide-y">

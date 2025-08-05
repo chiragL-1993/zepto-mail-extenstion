@@ -6,5 +6,5 @@ define("WIDGET_URI", "http://localhost/zepto-email-extenstion");
 
 require_once(__DIR__ . '/../ui/vendor/autoload.php');
 require_once(__DIR__ . '/classes/AuthHelper.php');
-require_once(__DIR__ . '/classes/SMSHelper.php');
+require_once(__DIR__ . '/classes/ZeptoMailHelper.php');
 require_once(__DIR__ . '/classes/Widget.php');

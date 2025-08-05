@@ -33,6 +33,13 @@ if (!$squirrelSc->lockScript()){
 }
 */
 
+
+//$now = Carbon::now('UTC');
+// Calculate the start of the current 15-minute block
+//$currentMinuteStart = $now->copy()->minute(intval($now->minute / 15) * 15)->second(0);
+// Calculate the end of the block (just before the next one)
+//$currentMinuteEnd = $currentMinuteStart->copy()->addMinutes(15)->subSecond();
+
 $currentMinuteStart = Carbon::now('UTC')->startOfMinute();
 $currentMinuteEnd = Carbon::now('UTC')->endOfMinute();
 

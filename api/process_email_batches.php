@@ -19,7 +19,7 @@ use ZeptoMailExtension\Model\Options;
 use Squirrel\Marketplace\ZeptoMailHelper;
 use Squirrel\Marketplace\AuthHelper;
 
-const CONTEXT = "Process Email Batches (V2)";
+const CONTEXT = "Process Email Batches";
 
 require getenv('SQUIRREL_CLIENT_LIB_V2');
 $squirrelSc = new SquirrelClient("sqible_demo_crm", false, CONTEXT);

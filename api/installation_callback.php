@@ -41,7 +41,7 @@ if ($create) {
         $response = postRequest($url, $_POST);
         $sc->log->info('Setting Create Response: ' . json_encode($response));
     } catch (Exception $e) {
-        $sc->log->error("Error while inserting row for new Burst SMS Extension V2! POST: " . print_r($_POST, true));
+        $sc->log->error("Error while inserting row for new Zepto Mail Extension ! POST: " . print_r($_POST, true));
     }
 }
 

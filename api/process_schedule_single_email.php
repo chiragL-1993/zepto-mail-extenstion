@@ -24,6 +24,13 @@ $squirrelSc = new SquirrelClient("sqible_demo_crm", false, CONTEXT);
 
 $authHelper = new AuthHelper($squirrelSc, CONTEXT);
 
+
+//$now = Carbon::now('UTC');
+// Calculate the start of the current 15-minute block
+//$currentMinuteStart = $now->copy()->minute(intval($now->minute / 15) * 15)->second(0);
+// Calculate the end of the block (just before the next one)
+//$currentMinuteEnd = $currentMinuteStart->copy()->addMinutes(15)->subSecond();
+
 $currentMinuteStart = Carbon::now('UTC')->startOfMinute();
 $currentMinuteEnd = Carbon::now('UTC')->endOfMinute();
 
@@ -34,16 +41,14 @@ $scheduledRecords = ZeptoEmailRecords::where(function ($query) {
     ->whereBetween('schedule_at', [$currentMinuteStart, $currentMinuteEnd])
     ->get();
 
-/*$scheduledRecords = ZeptoEmailRecords::where(function ($query) {
-    $query->where('status', BATCH_PROCESSING_STATUSES['scheduled'])
-        ->orWhere('status', BATCH_PROCESSING_STATUSES['retry']);
-})
-    ->whereBetween('schedule_at', [$currentMinuteStart, $currentMinuteEnd])
-    ->get();*/
 echo $currentMinuteStart;
 echo '<br>';
 echo $currentMinuteEnd;
-
+//echo '<br>';
+//echo date('Y-m-d H:i:s');
+//echo '<pre>';
+//print_r($_SERVER);
+//die;
 //echo '<br>';
 //echo '<pre>';
 //print_r($scheduledRecords);

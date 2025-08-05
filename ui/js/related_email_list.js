@@ -1,20 +1,20 @@
 var entityName, entityId;
 var currentPage = 1;
 var offset = 0;
-var pageSize = 10; 
-var smsData = [];
+var pageSize = 10;
+var emailData = [];
 var moreRecords = false;
 var noRecords = true;
 
 $(document).ready(async function () {
 
     // Subscribe to the EmbeddedApp onPageLoad event before initializing 
-    ZOHO.embeddedApp.on('PageLoad', async function(data) {
-        
+    ZOHO.embeddedApp.on('PageLoad', async function (data) {
+
         // Get the Entity Name and Entity ID from which the Custom Related List is initialized
         entityName = data.Entity;
         entityId = data.EntityId;
-        
+
         // Initial population
         await populateRows();
         updatePagination();
@@ -28,7 +28,7 @@ $(document).ready(async function () {
                 updatePagination();
             }
         });
-        
+
         // Handle pagination for previous page
         $('#next-page').on('click', async function (event) {
             event.preventDefault();
@@ -46,43 +46,43 @@ $(document).ready(async function () {
 
 async function populateRows() {
     showLoader();
-    var tableBody = $('#sms-history-table tbody');
+    var tableBody = $('#email-history-table tbody');
     offset = (currentPage - 1) * pageSize;
-    
+
     tableBody.empty(); // Clear existing rows
 
     var selectQuery = "select ";
-    for (let index = 0; index < SMS_HISTORY_FIELDS.length; index++) {
-        selectQuery += (index < SMS_HISTORY_FIELDS.length - 1) ? SMS_HISTORY_FIELDS[index] + ", " : SMS_HISTORY_FIELDS[index] + " ";       
+    for (let index = 0; index < EMAIL_HISTORY_FIELDS.length; index++) {
+        selectQuery += (index < EMAIL_HISTORY_FIELDS.length - 1) ? EMAIL_HISTORY_FIELDS[index] + ", " : EMAIL_HISTORY_FIELDS[index] + " ";
     }
-    selectQuery += "from " +SMS_HISTORY_MODULE+ " ";
-    selectQuery += "where " +SMS_HISTORY_CM_Name_FIELD+ " = '" +entityName+ "' and " +SMS_HISTORY_CM_ID_FIELD+ " = '" +entityId+ "' ";
-    selectQuery += "limit " +offset+ ", " +pageSize;
-    
+    selectQuery += "from " + EMAIL_HISTORY_MODULE + " ";
+    selectQuery += "where " + EMAIL_HISTORY_CM_Name_FIELD + " = '" + entityName + "' and " + EMAIL_HISTORY_CM_ID_FIELD + " = '" + entityId + "' ";
+    selectQuery += "limit " + offset + ", " + pageSize;
+
     var config = {
         "select_query": selectQuery
     }
     coqlResponse = await ZOHO.CRM.API.coql(config);
-    
-    if(coqlResponse && coqlResponse.data && coqlResponse.data.length > 0) {
+
+    if (coqlResponse && coqlResponse.data && coqlResponse.data.length > 0) {
         noRecords = false
-        smsData = coqlResponse.data;
+        emailData = coqlResponse.data;
         moreRecords = coqlResponse.info.more_records;
-        $.each(smsData, function (index, sms) {
+        $.each(emailData, function (index, email) {
             var row = $('<tr>');
-            //$('<td>').text(sms[SMS_HISTORY_FIELDS[0]]).appendTo(row);
-            var smsHistoryNameCell = $('<td>');
+            //$('<td>').text(email[EMAIL_HISTORY_FIELDS[0]]).appendTo(row);
+            var emailHistoryNameCell = $('<td>');
             var link = $('<a>', {
                 href: '#',
-                text: sms[SMS_HISTORY_FIELDS[1]],
+                text: email[EMAIL_HISTORY_FIELDS[1]],
                 click: function () {
-                    handleLinkClick(sms[SMS_HISTORY_FIELDS[0]]);
+                    handleLinkClick(email[EMAIL_HISTORY_FIELDS[0]]);
                 }
             });
-            link.addClass('sms-history-link');
-            smsHistoryNameCell.append(link).appendTo(row);
-            $('<td>').text(sms[SMS_HISTORY_FIELDS[2]]).appendTo(row);
-            $('<td>').text(sms[SMS_HISTORY_FIELDS[3]]).appendTo(row);
+            link.addClass('email-history-link');
+            emailHistoryNameCell.append(link).appendTo(row);
+            $('<td>').text(email[EMAIL_HISTORY_FIELDS[2]]).appendTo(row);
+            $('<td>').text(email[EMAIL_HISTORY_FIELDS[3]]).appendTo(row);
             tableBody.append(row);
         });
     }
@@ -108,22 +108,22 @@ function updatePagination() {
         prevPageButton.removeClass('disabled-link');
         nextPageButton.css('display', 'inline-block');
         nextPageButton.removeClass('disabled-link');
-        
-        currentPageElement.text((currentPage - 1) * pageSize + 1 + ' - ' + (offset + smsData.length));
-        currentPageElement.text((currentPage - 1) * pageSize + 1 + '\u00A0\u00A0 - \u00A0\u00A0' + (offset + smsData.length));
+
+        currentPageElement.text((currentPage - 1) * pageSize + 1 + ' - ' + (offset + emailData.length));
+        currentPageElement.text((currentPage - 1) * pageSize + 1 + '\u00A0\u00A0 - \u00A0\u00A0' + (offset + emailData.length));
     }
 
     // Disable previous page icon on first page
-    if(currentPage == 1) {
+    if (currentPage == 1) {
         prevPageButton.addClass('disabled-link');
     }
     // Disable next page icon on last page
-    if(!moreRecords) {
+    if (!moreRecords) {
         nextPageButton.addClass('disabled-link')
     }
 }
 
 function handleLinkClick(recordId) {
-    // Open SMS History record link
-    ZOHO.CRM.UI.Record.open({Entity: SMS_HISTORY_MODULE, RecordID: recordId});
+    // Open Email History record link
+    ZOHO.CRM.UI.Record.open({ Entity: EMAIL_HISTORY_MODULE, RecordID: recordId });
 }

@@ -1,11 +1,12 @@
 <?php
+
 namespace ZeptoMailExtension\Model;
 
 use Carbon\Carbon;
 
 /**
- * Class SMSRecord
- * @package BurstExtension\Model
+ * Class ZeptoEmailRecord
+ * @package ZeptoMailExtension\Model
  *
  *
  * @property int id
@@ -32,8 +33,5 @@ class Connections extends \SquirrelModel
      *
      * @var string
      */
-    //protected $table = "squirrel_burst_sms_connections_v2";
     protected $table = "squirrel_zepto_mail_connections";
-
 }
-

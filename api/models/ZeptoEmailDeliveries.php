@@ -5,8 +5,8 @@ namespace ZeptoMailExtension\Model;
 use Carbon\Carbon;
 
 /**
- * Class SMSDeliveries
- * @package BurstExtension\Model
+ * Class ZeptoEmailDeliveries
+ * @package ZeptoMailExtension\Model
  *
  *
  * @property int id
@@ -29,5 +29,4 @@ class ZeptoEmailDeliveries extends \SquirrelModel
      * @var string
      */
     protected $table = "zepto_email_deliveries";
-
 }

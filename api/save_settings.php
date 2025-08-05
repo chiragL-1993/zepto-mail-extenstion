@@ -18,7 +18,6 @@ if (in_array($requestOrigin, ALLOWED_ORIGINS)) {
     exit;
 }
 
-use Squirrel\BurstSMS;
 
 use ZeptoMailExtension\Model\Connections;
 use ZeptoMailExtension\Model\Options;
@@ -61,7 +60,7 @@ if (empty($client)) {
     exit;
 }
 
-// Parse sms modules array, for each module there should be phone and optout field mappings
+// Parse email modules array, for each module there should be phone and optout field mappings
 // There should also be plural_label and url_name field for the module
 $emailModulesArray = explode(',', $_POST["email-modules"]);
 $fieldMappingsArray = [];

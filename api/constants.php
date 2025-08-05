@@ -44,7 +44,8 @@ const EMAIL_HISTORY_FIELD_MAPPINGS = [
 
 const EMAIL_TEMPLATES_FIELD_MAPPINGS = [
     'module_api_name' => EXTENSION_NAMESPACE . 'EmailTemplates',
-    'email_body_field' => EXTENSION_NAMESPACE . 'Email_Templates_Body'
+    'email_body_field' => EXTENSION_NAMESPACE . 'Email_Templates_Body',
+    'email_subject_field' => EXTENSION_NAMESPACE . 'Email_Templates_Subject'
 ];
 
 const ZOHO_RECORD_URL = [

@@ -1,18 +1,3 @@
-<!-- <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scheduled SMS Jobs</title>
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-    <script src="https://live.zwidgets.com/js-sdk/1.2/ZohoEmbededAppSDK.min.js"></script>
-    <script src="js/common.js"></script>
-    <script src="js/sms_jobs.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-    <script src="https://unpkg.com/tailwindcss-cdn@3.3.4/tailwindcss.js"></script>
-    <link rel="stylesheet" href="css/common.css" />
-</head> -->
-
 <body class="flex justify-center py-10 text-xs text-gray-800 bg-gray-100">
 
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg divide-y shadow-2xl w-[80%] rounded-lg bg-white">

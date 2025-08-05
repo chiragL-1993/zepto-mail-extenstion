@@ -21,7 +21,7 @@ const EMAIL_TEMPLATE_FIELDS = [
 const EMAIL_HISTORY_FIELDS = [
     'id',
     'Name',
-    EXTENSION_NAMESPACE + 'Recipient_Number',
+    EXTENSION_NAMESPACE + 'Recipient_Email',
     EXTENSION_NAMESPACE + 'Status',
     EXTENSION_NAMESPACE + 'Custom_Module_Name',
     EXTENSION_NAMESPACE + 'Custom_Module_Record_ID',

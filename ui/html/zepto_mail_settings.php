@@ -1,35 +1,3 @@
-<!--<!DOCTYPE html>-->
-<!--<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Burst SMS Settings</title>
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-    <script src="https://live.zwidgets.com/js-sdk/1.2/ZohoEmbededAppSDK.min.js"></script>
-    <script src="js/common.js"></script>
-    <script src="js/zepto_mail_settings.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-    <script src="https://unpkg.com/tailwindcss-cdn@3.3.4/tailwindcss.js"></script>
-    <link rel="stylesheet" href="css/common.css" />
-    <link rel="stylesheet" href="countries/build/css/countrySelect.css">
-    <script src="countries/build/js/countrySelect.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/abpetkov/switchery/dist/switchery.min.css" />
-    <script src="https://cdn.jsdelivr.net/gh/abpetkov/switchery/dist/switchery.min.js"></script>
-
-    <style>
-        .country-select .selected-flag {
-            z-index: 0;
-        }
-
-        .sms-optout-picklist {
-            max-width: 150px !important;
-        }
-
-        .mobile-picklist {
-            max-width: 150px !important;
-        }
-    </style>
-</head>-->
 <style>
     .country-select .selected-flag {
         z-index: 0;
@@ -61,43 +29,10 @@
             </header>
 
             <div class="space-y-3 p-5">
-
-                <!--                <div class="grid grid-cols-3 gap-5">
-                    <fieldset class="space-y-1 flex flex-col">
-                        <label for="api-key" class="font-medium">Burst SMS API Key <span class="text-red-600">*</span></label>
-                        <input type="text" id="api-key" name="api-key" required class="rounded-md py-2 px-3 ring-1 ring-gray-300">
-                    </fieldset>
-                    <fieldset class="space-y-1 flex flex-col">
-                        <label for="api-secret" class="font-medium">Burst SMS API Secret <span class="text-red-600">*</span></label>
-                        <div class="relative">
-                            <input type="password" id="api-secret" name="api-secret" required class="rounded-md py-2 px-3 ring-1 ring-gray-300 focus:ring-blue-500 focus:border-blue-500 block w-full border-gray-300">
-                            <button type="button" class="toggle-password absolute right-0 top-0 m-2 focus:outline-none focus:ring-opacity-75 rounded-md text-gray-400 hover:text-gray-500 focus:ring-blue-500">
-                                <i class="fa-solid fa-eye"></i>
-                            </button>
-                        </div>
-                    </fieldset>
-                    <fieldset class="space-y-1 flex flex-col">
-                        <label for="country" class="font-medium">Send SMS to Country <span class="text-red-600">*</span></label>
-                        <input type="text" id="country" name="country" required class="rounded-md py-2 px-3 ring-1 ring-gray-300 w-full">
-                    </fieldset>
-                </div>-->
-
                 <div class="grid grid-cols-3 gap-5">
                     <fieldset class="space-y-1 flex flex-col group fieldset-tooltip">
                         <label for="sender" class="font-medium">Mail Sender ID <span class="text-red-600">*</span></label>
                         <input type="email" id="sender" name="sender" required class="rounded-md py-2 px-3 ring-1 ring-gray-300">
-                        <!--                        <select id="sender" name="sender" required class="rounded-md py-2 px-3 ring-1 ring-gray-300">
-                            <option value="" selected>Choose Sender</option>
-                             Options will be dynamically populated by jQuery 
-                        </select>-->
-                        <!-- <input type="text" id="sender-email" name="sender-email" class="rounded-md py-2 px-3 ring-1 ring-gray-300"> -->
-                        <!-- <div class="tooltip-text">
-                            Choose a default Sender ID from the available options of Shared Number, Dedicated Virtual Mobile Numbers, or Alphanumeric Sender ID.
-                            <br />
-                            For Alphanumeric Sender ID, please type the exact ID in the input field. It must match the purchased ID to ensure successful SMS delivery.
-                            <br />
-                            <b>Note:</b> The number/id set here will also be used for messages sent via webhook.
-                        </div> -->
                     </fieldset>
                     <fieldset class="space-y-1 flex flex-col">
                         <label for="client-code" class="font-medium">Squirrel Client Code <span class="text-red-600">*</span></label>
@@ -115,7 +50,7 @@
                         <input type="text" id="api-key" name="api-key" required class="rounded-md py-2 px-3 ring-1 ring-gray-300">
 
                         <div class="tooltip-text">
-                            To Generate a Zepto Mail Api Token Please refer below URL:
+                            In order to get your Zepto Mail Api Key refer the instructions here:
                             <br />
                             <strong>URL: </strong>
                             <span class="text-gray-500">
@@ -259,10 +194,10 @@
                             <tr>
                                 <td class="py-1 px-4 border-b border-gray-200 font-bold">email_template_id</td>
                                 <td class="py-1 px-2 border-b border-gray-200">
-                                    Parameter Value: ID of the Email Template record which you want to use for Email content (eg. 7874000008845012)<br />
+                                    Parameter Value: ID of the Email Template record which you want to use for Email content (eg. 6768420000002394004)<br />
                                     <span class="text-gray-500">
                                         [Go to Email Template module & click on the relevant Email Template record. Copy the ID from the URL as highlighted below<br />
-                                        https://crm.zoho.com.au/crm/org000342300/tab/EmailTemplates/<strong>7874000008845012</strong>
+                                        https://crm.zoho.com/crm/org889066118/tab/EmailTemplates/<strong>6768420000002394004</strong>
                                     </span>
                                 </td>
                             </tr>

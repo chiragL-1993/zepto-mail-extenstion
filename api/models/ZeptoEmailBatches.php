@@ -5,8 +5,8 @@ namespace ZeptoMailExtension\Model;
 use Carbon\Carbon;
 
 /**
- * Class SMSBatches
- * @package BurstExtension\Model
+ * Class ZeptoEmailBatches
+ * @package ZeptoMailExtension\Model
  *
  *
  * @property int id
@@ -29,6 +29,5 @@ class ZeptoEmailBatches extends \SquirrelModel
      *
      * @var string
      */
-    //protected $table = "sms_batches_v2";
     protected $table = "zepto_email_batches";
 }

@@ -25,29 +25,6 @@ class ZeptoMailHelper
         $this->zeptoApiKey = $zeptoApiKey;
     }
 
-    /*public function getEmailParameters(ZCRMRecord $record, $user, $configuration)
-    {
-        $email = $configuration['email'] ?: $record->getFieldValue($configuration['email_field']);
-        if (empty($email)) {
-            return ['error' => 'Missing recipient email address'];
-        }
-
-        $subject = $this->replaceMergeFields($configuration['subject'], $record, $user, $configuration);
-        $body = $this->replaceMergeFields($configuration['email_body'], $record, $user, $configuration);
-
-        if (empty($body)) {
-            return ['error' => 'Email body is empty'];
-        }
-
-        return [
-            'to' => $email,
-            'subject' => $subject,
-            'body' => $body,
-            'from' => $configuration['email_from'] ?: DEFAULT_SENDER,
-            //'bounce' => $configuration['bounce'] ?: null
-        ];
-    }*/
-
     public function getEmailParameters(ZCRMRecord $record, $user, $configuration)
     {
         $email = $configuration['email_address'] ?: $record->getFieldValue($configuration['email_field']);
@@ -84,7 +61,7 @@ class ZeptoMailHelper
         ];
     }
 
-    /*public function getEmailBatchParameters(ZCRMRecord $record, $user, $configuration)
+    public function getEmailBatchParameters(ZCRMRecord $record, $user, $configuration)
     {
         $email_address = $configuration['email_address'];
         $toList = [];
@@ -126,7 +103,7 @@ class ZeptoMailHelper
             "track_opens" => true,
             //'bounce_address' => $configuration['bounce'] ?? 'bounce@yourdomain.com' // Optional
         ];
-    }*/
+    }
     public function replaceMergeFields($text, ZCRMRecord $record, $user, $configuration)
     {
         $pattern = '/\${(.*?)\.(.*?)}/';
@@ -169,44 +146,8 @@ class ZeptoMailHelper
         return $this->getFormattedDate($value);
     }
 
-
-    /*public function sendEmail(array $emailParams)
-    {
-        try {
-            if ($this->zeptoApiKey) {
-                return $this->sendViaZeptoApi($emailParams);
-            } else {
-                return $this->sc->sendTemplateEmail(
-                    'general-wide',
-                    $emailParams['to'],
-                    $emailParams['subject'],
-                    ['body' => $emailParams['email_body']]
-                );
-            }
-        } catch (Exception $e) {
-            $this->sc->log->critical("Failed to send email", [
-                'exception' => $e->getMessage(),
-                'params' => $emailParams
-            ]);
-            return false;
-        }
-    }*/
-
     public function sendEmail(array $params)
     {
-        /*$payload = [
-            //'bounce_address' => $params['bounce'] ?: 'bounce@yourdomain.com',
-            'from' => [
-                'address' => $params['from'],
-                //'name' => 'Zepto Mailer'
-            ],
-            'to' => [[
-                'email_address' => ['address' => $params['to']]
-            ]],
-            'subject' => $params['subject'],
-            'htmlbody' => $params['body']
-        ];*/
-
         $ch = curl_init('https://api.zeptomail.com/v1.1/email');
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
@@ -238,7 +179,7 @@ class ZeptoMailHelper
         return $result;
     }
 
-    /*public function sendBatchEmail(array $params)
+    public function sendBatchEmail(array $params)
     {
         $ch = curl_init('https://api.zeptomail.com/v1.1/email/batch');
         curl_setopt_array($ch, [
@@ -263,9 +204,9 @@ class ZeptoMailHelper
         }
 
         $result = json_decode($response, true);
-       
+
         return $result;
-    }*/
+    }
 
 
     public function logEmailRecord($recordId, $emailParams, $status = 'sent')
@@ -289,11 +230,21 @@ class ZeptoMailHelper
         $body .= "</ul>";
 
         if ($this->zeptoApiKey) {
-            $this->sendViaZeptoApi([
-                'to' => $recipient,
+            $this->sendEmail([
+                'from' => [
+                    'address' => DEFAULT_SENDER,
+                ],
+                'to' => [[
+                    'email_address' => ['address' => $recipient]
+                ]],
+                'reply_to' => [[
+                    'address' => DEFAULT_SENDER
+                ]],
                 'subject' => 'Bulk Email Sending Failures',
-                'body' => $body,
-                'from' => DEFAULT_SENDER
+                'htmlbody' => $body,
+                "track_clicks" => true,
+                "track_opens" => true,
+                //'bounce_address' => $configuration['bounce'] ?? 'bounce@yourdomain.com' // Optional
             ]);
         } else {
             $this->sc->sendTemplateEmail(

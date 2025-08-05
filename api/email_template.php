@@ -37,7 +37,7 @@ $jsArray = [
 ];
 
 $widget->render(
-    "Create SMS Template",
+    "Create Email Template",
     $cssArray,
     $jsArray,
     file_get_contents(__DIR__ . "/../ui/html/email_template.php")
